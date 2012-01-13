@@ -32,12 +32,16 @@ A proxy that allows you to inject arbitrary javascript into a webpage by
 passing it through a proxy. Most useful when combined with the following
 bookmarklet (or some alteration thereof):
 
+```
 javascript: document.location = "http://localhost:9000?dest=" + document.location
+```
 
 In its simpliest form (that above), the proxy injects jQuery and nothing
 else. To inject other scripts, add to the GET arguments:
 
+```
 &script=example.com/script.js,mysite.localhost/scripts/stuff.js,...
+```
 
 Currently jQuery is injected always, without regard to whether or not the
 site has it to begin with. 
