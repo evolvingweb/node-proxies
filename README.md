@@ -1,5 +1,4 @@
-l Evolving Web Node Proxies
-// * Fix paths.
+# Evolving Web Node Proxies
 
 Various node proxies. Mostly toys with some purpose. See individual sections of source files for details (source file headers are more likely to be up to date).
 
