@@ -1,0 +1,18 @@
+{
+  "name": "ew-node-proxies",
+  "version": "0.0.0",
+  "description" :"Various proxies, see headers in code files for specifics.",
+  "Author": "Divers, see individual scripts.",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/evolvingweb/node-proxies.git"
+  },
+  "dependencies": {
+    "http-proxy": "0.8.0",
+    "htmlparser": ">= 1.7.x"
+  },
+  "engines": {
+    "node": ">= 0.6.5"
+  }
+}
+
