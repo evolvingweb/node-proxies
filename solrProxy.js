@@ -81,7 +81,7 @@ var proxyFilter = {
     qt: function() {return false;}
   },
   handlers: {
-    '/solr/select': function(req, query) {
+    '/solr/select': function(req, query, filters) {
       for (var param in query) {
         if (!query.hasOwnProperty(param)) {
           continue;
@@ -89,8 +89,8 @@ var proxyFilter = {
 
         var q = param.split('.');
 
-        if (this.filters[q[0]] !== undefined && typeof(this.filters[q[0]]) === 'function') {
-          if (!this.filters[q[0]](req, query[param], q.slice(1))) {
+        if (filters[q[0]] !== undefined && typeof(filters[q[0]]) === 'function') {
+          if (!filters[q[0]](req, query[param], q.slice(1))) {
             return false;
           }
         }
@@ -100,46 +100,48 @@ var proxyFilter = {
   },
   verify: function(req, query, handler) {
     if (this.handlers[handler] !== undefined && typeof(this.handlers[handler]) === 'function') {
-      return this.handlers[handler](req, query);
+      return this.handlers[handler](req, query, this.filters);
     }
     else {
       return false;
     }
   }
 };
-    
-/* 
- * Generic access denied.
- */
-var serve403 = function(req, res, mesg) {
-  res.writeHead(403, 'Illegal request');
-  if (mesg === undefined) {
-    mesg = 'Your request has been denied for secuity reasons. If you think it was a legitamate request, please contact the site administrator.';
-  }
-  res.write(mesg);
-  console.log("Request refused from:\n" + req.headers.origin);
-  res.end();
-}
 
-/* 
- * Check the query against the filter and either proxy the request, or return a
- * 403.
- */
-var vetQuery = function (req, res, query, handler) {
-  if (proxyFilter.verify(req, query, handler)) {
-    httpProxy.createServer(function(req, res, proxy) {
+
+httpProxy.createServer(function(req, res, proxy) {
+
+  /* 
+   * Generic access denied.
+   */
+  var serve403 = function(mesg) {
+    res.writeHead(403, 'Illegal request');
+    if (mesg === undefined) {
+      mesg = 'Your request has been denied for secuity reasons. If you think it was a legitamate request, please contact the site administrator.';
+    }
+    res.write(mesg);
+    console.log("Request refused from:\n" + req.headers.origin);
+    res.end();
+  }
+
+  /* 
+   * Check the query against the filter and either proxy the request, or return a
+   * 403.
+   */
+  var vetQuery = function (query, handler) {
+    if (proxyFilter.verify(req, query, handler)) {
       proxy.proxyRequest(req, res, {
         host: 'localhost',
         port: 8080,
       });
-    });
-  }
-  else {
-    serve403(req, res);
     }
-}
+    else {
+      serve403();
+      }
+  }
 
-httpProxy.createServer(function(req, res, proxy) {
+  // Server logic
+  // ==========================================================================
 
   // Incoming request prameters.
   var query = {};
@@ -167,17 +169,17 @@ httpProxy.createServer(function(req, res, proxy) {
       query = url.parse('?' + args.query, true).query;
 
       // TODO: Once we get the handler business figured out, fix this.
-      vetQuery(req, res, query, undefined);
+      vetQuery(query, undefined);
     });
   }
   else if (req.method === 'GET') {
     data = url.parse(req.url, true);
     query = data.query; 
     handler = data.pathname;
-    vetQuery(req, res, query, handler);
+    vetQuery(query, handler);
   }
   else {
-    serve403(req, res);
+    serve403();
   }
 }).listen(8008, function () {
          console.log("Proxy ready.")
