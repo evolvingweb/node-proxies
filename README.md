@@ -1,6 +1,9 @@
 # Evolving Web Node Proxies
 
-Various node proxies. Mostly toys with some purpose. See individual sections of source files for details (source file headers are more likely to be up to date).
+Various node proxies. Currently of interest are 
+
+ * solrProxy.js
+ * scriptInjector.js
 
 ## Setup
 
@@ -16,14 +19,44 @@ Then use it to install the dependencies to this project:
 npm install
 ```
 
-## Contains
+## solrProxy.js
 
-### solrProxy.js
+A node module for building reverse proxies to protect a solr instance exposed
+to the internet.
 
-Very simple reverse proxy to sit in front of solr and protect it from
-malicious queries. Originally intended for use with the AJAX-Solr library,
-but more generally applicable anyone wishing to expose Solr to the outside
-world.
+You need to define your own query filter function and use it to create a proxy.
+See solrQueryFilter.js for an example query filter and solrProxyExample.js for
+a working proxy.
+
+### Setting up a proxy server
+
+``` js
+var solrProxy = require('PATH/solrProxy');
+
+solrProxy.createProxy(proxyPort, proxyOptions, queryFilter);
+```
+
+proxyOptions is an object which defines how the proxy behaves --- including
+where it proxies to. Nearly always you will want something like the following:
+
+``` js
+var proxyOptions = {
+  host: 'example.com',
+  port: 1234
+}
+```
+
+See solrProxyExample.js for a working example.
+
+### Writing your own query filter
+
+A query filter is a function that returns true or false depending on whether
+the given query should be proxied to Solr or rejected outright. 
+
+As arguments the function takes an httpRequest object, an object which contains
+just the parsed query, and the handler to which the query was sent.
+
+See solrQueryFilter.js for a more complete example.
 
 ### scriptInjector.js
 
