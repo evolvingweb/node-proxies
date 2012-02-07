@@ -35,46 +35,46 @@
 // probably better off using separate cores and keeping one public and one
 // entirely private though). 
 //
-// 
-// Note on solrURL vs. proxyURL
-// ============================================================================
-//
-// This filter requires a handler to be explicitely defined and at present, if
-// ajax-solr is configured with the proxyUrl option, then no handler
-// information is passed. Thus this filter will deny all requests. You could
-// assume '/solr/select' if you so desire in your own filter to bypass this
-// problem.
 
-var self = {
-  filters: {
-    qt: function() {return false;}
-  },
-  handlers: {
-    '/solr/select': function(req, query) {
-      for (var param in query) {
-        if (!query.hasOwnProperty(param)) {
-          continue;
-        }
+/*
+ * Special processing for certain filters.
+ */
+var filters = {
+  qt: function() {return false;}
+};
 
-        var q = param.split('.');
+/*
+ * Define callbacks for the handlers we want to deal with (those left out get
+ * rejected automatically below).
+ */
+var handlers = {
+  '/solr/select': function(req, query) {
+    for (var param in query) {
+      if (!query.hasOwnProperty(param)) {
+        continue;
+      }
 
-        if (self.filters[q[0]] !== undefined && typeof(self.filters[q[0]]) === 'function') {
-          if (!self.filters[q[0]](req, query[param], q.slice(1))) {
-            return false;
-          }
+      var q = param.split('.');
+
+      if (typeof(filters[q[0]]) === 'function') {
+        if (!filters[q[0]](req, query[param], q.slice(1))) {                 
+          return false;
         }
       }
-      return true;
     }
-  },
-  verify: function(req, query, handler) {
-    if (self.handlers[handler] !== undefined && typeof(self.handlers[handler]) === 'function') {
-      return self.handlers[handler](req, query);
-    }
-    else {
-      return false;
-    }
+    return true;
   }
 };
 
-exports.verify = self.verify;
+/*
+ * Query filter function.
+ */
+module.exports = function(req, query, handler) {
+  if (typeof(handlers[handler]) === 'function') {
+    return handlers[handler](req, query);
+  }
+  else {
+    return false;
+  }
+};
+

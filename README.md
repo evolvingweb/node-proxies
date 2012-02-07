@@ -33,7 +33,7 @@ a working proxy.
 ``` js
 var solrProxy = require('PATH/solrProxy');
 
-solrProxy.createProxy(proxyPort, proxyOptions, queryFilter);
+solrProxy.createProxy(proxyOptions, queryFilter).listen(4321);
 ```
 
 proxyOptions is an object which defines how the proxy behaves --- including
@@ -58,7 +58,7 @@ just the parsed query, and the handler to which the query was sent.
 
 See solrQueryFilter.js for a more complete example.
 
-### scriptInjector.js
+## scriptInjector.js
 
 A proxy that allows you to inject arbitrary javascript into a webpage by
 passing it through a proxy. Most useful when combined with the following

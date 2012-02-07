@@ -8,8 +8,8 @@
 // Info:
 // ============================================================================
 // Created: 09/01/2012
-// Last modified: 19/01/2012
-// Version: 0.0.?
+// Last modified: 07/02/2012
+// Version: 0.0.2
 // Author: Thomas Getgood <thomas@evolvingweb.ca>
 // Available: https://github.com/evolvingweb/node-proxies.git
 //
@@ -36,9 +36,9 @@ var httpProxy = require('http-proxy'),
     url = require('url'),
     qs = require('querystring');
 
-exports.createProxy = function(proxyPort, proxyOptions, verifyCallback) {
+exports.createProxy = function(proxyOptions, verifyCallback) {
 
-  httpProxy.createServer(function(req, res, proxy) {
+  return httpProxy.createServer(function(req, res, proxy) {
 
     /* 
      * Generic access denied.
@@ -72,6 +72,8 @@ exports.createProxy = function(proxyPort, proxyOptions, verifyCallback) {
     var data = '';
 
     // Server logic
+    // The POST handling is a bit of a mess and not really necessary. It may be
+    // removed in the future.
     // ==========================================================================
 
     if (req.method === 'OPTIONS') {
@@ -87,15 +89,21 @@ exports.createProxy = function(proxyPort, proxyOptions, verifyCallback) {
     else if (req.method === 'POST') {
       // TODO: forbid if req.headers['content-length'] is too big;
       // What's too big?
+      req.setEncoding('utf8');
       req.on('data', function(chunk) {
         data += chunk;
       });
       req.on('end', function() {
+        // N.B. This will need to be changed depending on how data is going to
+        // be formatted in POST requests. As it is, it assumes a URL encoding.
+        // JSON would be more sensible. 
+        
+        //TODO: Why does queryString.parse fail to parse this?
         var args = url.parse('?' + data, true).query;
         query = url.parse('?' + args.query, true).query;
-
-        // TODO: Once we get the handler business figured out, fix this.
-        vetQuery(query, undefined);
+        console.log(query);
+        handler = args.handler;
+        vetQuery(query, handler);
       });
     }
     else if (req.method === 'GET') {
@@ -108,7 +116,5 @@ exports.createProxy = function(proxyPort, proxyOptions, verifyCallback) {
     else {
       forbid();
     }
-  }).listen(proxyPort, function () {
-           console.log("Proxy ready.");
   });
 };
