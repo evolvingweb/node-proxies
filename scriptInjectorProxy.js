@@ -23,7 +23,6 @@
 
 // TODO:
 // * get 'script=' GET argument working.
-// * Fix paths.
 // * Catch 302s and reproxy to the redirected url.
 // * Try to deal with https (it feels like this should be hard, but maybe not).
 
