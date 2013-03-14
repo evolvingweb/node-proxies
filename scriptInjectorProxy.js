@@ -44,7 +44,8 @@ httpProxy.createServer(function(req, res, proxy) {
   destination = url.parse(dest, true);
 
   req.headers['host'] = destination.host;
-  req.headers['url'] = destination.href;
+  req.url = destination.path;
+//  req.headers['url'] = destination.href;
 
   // console.log(dest);
   // console.log("-------------------------------------------");
