@@ -1,25 +1,18 @@
 # Evolving Web Node Proxies
 
-Various node proxies. Currently of interest are 
+Several node.js-based proxy servers. Currently of interest are 
 
  * solrProxy.js
  * scriptInjector.js
 
 ## Setup
 
-Install npm if you haven't already:
-
-```
-curl http://npmjs.org/install.sh | sh
-```
-
-Then use it to install the dependencies to this project:
-
-```
-npm install
-```
+    curl http://npmjs.org/install.sh | sh         # install npm
+    npm install                                   # install dependencies
 
 ## solrProxy.js
+
+*NOTE*: For a more up-to-date implementation, see [solr-security-proxy](https://github.com/dergachev/solr-security-proxy)
 
 A node module for building reverse proxies to protect a solr instance exposed
 to the internet.
